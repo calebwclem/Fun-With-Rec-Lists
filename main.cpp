@@ -15,7 +15,11 @@ int main()
     std::cout << "Echoing the list q that you entered below." << std::endl;
     write_list(q);
 
-    //Testing nodes at top level
+    //Testing shape
+    std::cout << "The shape of the list p is: ";
+    write_list(shape(p));
+
+    /*//Testing nodes at top level
     std::cout << "The number of nodes at the top level of the input list is: "
         << numNodesAtTheTopLevel(p) << std::endl;
 
@@ -34,6 +38,7 @@ int main()
     else
         std::cout << "false" << std::endl;
 
+*/
     //Testing list_pair
     std::cout << "The new list of pairs from p and q is ";
     write_list(list_pair(p,q));
@@ -46,7 +51,7 @@ int main()
     std::cout << "The first elements of the sublists in p are: ";
     write_list(firsts(p));*/
 
-    //Testing total_reverse
+    /*//Testing total_reverse
     std::cout << "The list p with all elements reversed is: ";
     write_list(total_reverse(p));
 
@@ -70,11 +75,26 @@ int main()
 
     //Testing intersection
     std::cout << "The intersection of p and q is: ";
-    write_list(intersection(p,q));
+    write_list(intersection(p,q));*/
 
     //Testing union
     std::cout << "The union of p and q is: ";
     write_list(list_union(p,q));
+
+    //Testing substitute
+    std::cout << "Testing substitute:";
+    write_list(substitute(p,q,p));
+
+    //Testing remove
+    std::cout << "The list p with the first element of q removed is: ";
+    write_list(remove(p,q));
+
+    //Testing subset
+    std::cout << "The list p is a subset of q: ";
+    if (subset(p,q))
+        std::cout << "true" << std::endl;
+    else
+        std::cout << "false" << std::endl;
 
     return 0;//Return 0 to indicate success.
 }//End main.

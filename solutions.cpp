@@ -5,19 +5,106 @@
 // function-prototype to the solutions.hpp.
 //
 
-//Takes a list of atoms (atoms may repeat) and returns a copy of p with every
-//occurrence of atom old replaced by atom new.
-//For example: substitute(a, x, (a b a c)) = (x b x c)
-list substitute(list old, list newList, list p) {
+
+//Takes a list of atoms and returns a list whose elements
+//are all distinct permutations of p.
+//For example: permute((a b c)) = ((a b c) (a c b) (b a c) (b c a) (c a b) (c b a))
+list permute(list p) {
 
     return null();
 }
 
+
+//Takes two lists (neither of which is an atom) and returns true if
+//every atom in p also appears in q (treating them as sets).
+//For example:
+//subset(((a) b), ((a) b c)) = true
+//subset(((a b) c), (c (a b) d)) = true
+//subset(((a b) c), (c d)) = false
+//subset((a b), (a b c d)) = true
+//subset((a d), (a b c)) = false
+bool subset(list p, list q) {
+
+    if (is_null(p))
+        return true;
+
+    // p is a non-empty list here;
+    if (is_atom(car(p))) {
+        if (member(car(p), q))
+            return subset(cdr(p), q);
+        else //Not a subset
+            return false;
+    }
+
+    // If the head of p is a sublist, ignore it for atoms-only subset and continue
+    return subset(cdr(p), q);
+}
+
+
+//Takes a list of atoms and an atom a, and returns a list that does not contain a.
+//All occurrences of a are removed.
+//For example: remove((a b a c b), a) = (b c b)
+list remove(list p, list a) {
+
+    if (is_null(p))
+        return null();
+
+    if (is_atom(p)) {
+        if (eq(p, car(a))) {
+            return null();
+        } else {
+            return p;
+        }
+    }
+
+    // p is a non-empty list
+    if (is_atom(car(p))) {
+        if (eq(car(p), car(a))) {
+            // Drop this element; continue with the tail
+            return remove(cdr(p), a);
+        }
+        else {
+            // Keep this atom; process the tail
+            return cons(car(p), remove(cdr(p), a));
+        }
+    }
+    else{
+        // Recurse into sublist head; always preserve parentheses
+        return cons(remove(car(p), a), remove(cdr(p), a));
+    }
+}
+
+
+//Takes a list of atoms (atoms may repeat) and returns a copy of p with every
+//occurrence of atom old replaced by atom new.
+//For example: substitute(a, x, (a b a c)) = (x b x c)
+list substitute(list old, list newList, list p){
+    // Handle empty list
+    if (is_null(p))
+        return null();
+
+    // If p is an atom, replace it if it matches `old`
+    if (is_atom(p)) {
+        if (eq(p, old))
+            return newList;
+        return p;
+    }
+
+    // Otherwise, recurse into both head and tail to preserve structure
+    return cons(substitute(old, newList, car(p)),
+                substitute(old, newList, cdr(p)));
+}
+
+
 //Takes two lists of distinct atoms (representing sets) and
 //returns a list of the union of p and q, without repetition.
 list list_union(list p, list q) {
-    if (is_null(p) || is_null(q))
+    if (is_null(p) && is_null(q))
         return null();
+    if (is_null(p))
+        return q;
+    if (is_null(q))
+        return p;
 
     if (member(car(p), q))
         return list_union(cdr(p), q);
@@ -41,8 +128,12 @@ list intersection(list p, list q) {
 //that consists only of the parentheses structure of the original.
 list shape(list p) {
 
+    if (is_null(p))
+        return null();
+    if (is_atom(car(p)))
+        return shape(cdr(p));
 
-    return null();
+    return cons(shape(car(p)), shape(cdr(p)));
 }
 
 
@@ -76,8 +167,11 @@ bool equal(list p, list q) {
 //Takes two lists (not atoms) and returns true if p and q contain at least one atom in common
 bool two_the_same(list p, list q) {
 
-    if (is_null(p) && is_null(q))
-        return true;
+    //Removed the following base condition because TECHNICALLY
+    // even though the null list is the same as the null list
+    // it does not have atoms in common!
+    //if (is_null(p) && is_null(q))
+        //return true;
 
     if (is_null(p))
         return false;
@@ -89,7 +183,6 @@ bool two_the_same(list p, list q) {
 }
 
 
-//TODO: flat
 //Takes a list (not an atom) and returns a list in which all nested parentheses
 // are removed (except the outer set of course).
 // Ex: flat((a (b) (c d))) = ( a b c d )
@@ -126,7 +219,7 @@ list firsts(list p) {
     return cons(car(car(p)), firsts(cdr(p)));
 }
 
-//TODO: list_pair technically solves the problem...  but is it legal or cheating?
+
 //Takes two lists of atoms of the same length and returns a list of pairs,
 //where each pair contains corresponding atoms from p and q.
 //list_pair((a b c), (d e f)) = ((a d) (b e) (c f))
@@ -136,14 +229,8 @@ list list_pair(list p,list q) {
     if (is_null(p) || is_null(q))
         return null();
 
-    //create a corresponding list of individual first elements
-    list firstP = cons(car(p), null());
-    list firstQ = cons(car(q), null());
-
-    //Now pair them
-    list newPair = append(firstP,firstQ);
-
-    return cons(newPair, list_pair(cdr(p), cdr(q)));
+    return cons(append(cons(car(p), null()),
+        cons(car(q),null())), list_pair(cdr(p), cdr(q)));
 }
 
 // Takes a non-empty list (not an atom) and returns its last element.
